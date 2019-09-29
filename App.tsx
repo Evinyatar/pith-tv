@@ -30,6 +30,8 @@ import {PithDiscovery, PithDiscoveryResult} from "./services/PithDiscovery";
 import {createStackNavigator} from "react-navigation-stack";
 import {createAppContainer, NavigationActions} from "react-navigation";
 import {Browser} from "./views/Browser";
+import {ChannelSelector} from "./views/ChannelSelector";
+import {Player} from "./views/Player";
 
 class ServerSelection extends React.Component {
     private discovery: PithDiscovery;
@@ -41,7 +43,7 @@ class ServerSelection extends React.Component {
 
     openServer(item: PithDiscoveryResult) {
         console.log("Opening", item);
-        this.props.navigation.navigate("Browser", {serviceLocation: item});
+        this.props.navigation.navigate("ChannelSelector", {serviceLocation: item});
     };
 
     render() {
@@ -60,7 +62,9 @@ class ServerSelection extends React.Component {
 
 const MainNavigator = createStackNavigator({
     Home: {screen: ServerSelection},
-    Browser: {screen: Browser}
+    ChannelSelector: {screen: ChannelSelector},
+    Browser: {screen: Browser},
+    Player: {screen: Player}
 });
 
 const App = createAppContainer(MainNavigator);

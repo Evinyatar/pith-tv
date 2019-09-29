@@ -4,22 +4,19 @@ import {
     FlatList,
     Text
 } from "react-native";
-import {PithChannel, PithDirectory, PithItem, PithService} from "../services/PithService";
+import {PithChannel, PithDirectory, PithItem} from "../services/PithService";
 
 export class Browser extends React.Component {
-    private pithService: PithService;
+    private directory: PithDirectory;
+    private channel: PithChannel;
 
     constructor(...rest) {
         super(...rest);
-        const serviceLocation = this.props.navigation.getParam("serviceLocation");
-        this.pithService = new PithService(serviceLocation);
     }
 
     state: {
-        channels: PithChannel[],
         contents: PithItem[]
     } = {
-        channels: [],
         contents: []
     };
 
@@ -29,25 +26,26 @@ export class Browser extends React.Component {
     }
 
     async selectItem(item: PithItem) {
-        if(item instanceof PithDirectory) {
-            let contents = await item.listContents();
-            this.setState(previousState => ({...previousState, contents: contents}));
+        if (item instanceof PithDirectory) {
+            this.props.navigation.push("Browser", {channel: this.channel, directory: item});
+        } else if (item.playable) {
+            const stream = await item.getStreamDetails();
+            this.props.navigation.navigate("Player", {stream: stream});
         }
     }
 
     async componentDidMount() {
-        this.setState({channels: await this.pithService.listChannels()});
+        this.directory = this.props.navigation.getParam("directory");
+        this.channel = this.props.navigation.getParam("channel");
+        this.setState({contents: await this.directory.listContents()});
     }
 
     render() {
-        return (<><Text>Channels</Text>
-            <FlatList data={this.state.channels} renderItem={({item}) =>
-                <Text onPress={() => this.selectChannel(item)}>{item.title}</Text>
-            }
-            keyExtractor={item => item.id}
-            />
-            <Text>Contents</Text>
-            <FlatList data={this.state.contents} renderItem={({item}) => <Text onPress={() => this.selectItem(item)}>{item.title}</Text>}/>
-        </>);
+        return (
+            <>
+                <Text>Contents</Text>
+                <FlatList data={this.state.contents}
+                          renderItem={({item}) => <Text onPress={() => this.selectItem(item)}>{item.title}</Text>}/>
+            </>);
     }
 }

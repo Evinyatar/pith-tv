@@ -17,15 +17,35 @@ export class RestModule {
     }
 }
 
+export class PithItemStream {
+    duration: number;
+    format: {
+        streams: {}[]
+    };
+    mimetype: string;
+    seekable: boolean;
+    streams: {}[];
+    url: string;
+}
+
+export class PithStreamDetails {
+    item: any;
+    stream: PithItemStream;
+}
+
 export class PithItem {
     readonly title: string;
+    readonly playable: boolean;
     constructor(readonly channel: PithChannel, readonly id: string, descriptor?: any) {
         if(descriptor) {
             Object.assign(this, descriptor);
         }
     }
-}
 
+    getStreamDetails(): Promise<PithStreamDetails> {
+        return this.channel.get('stream/' + this.id);
+    }
+}
 export class PithDirectory extends PithItem {
     readonly title: string;
     constructor(readonly channel: PithChannel, readonly id: string, descriptor?: any) {
