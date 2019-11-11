@@ -13,7 +13,11 @@ export class RestModule {
     }
 
     get(url) {
-        return fetch(this.root + "/" + url).then(response => response.json());
+        return fetch(this.resolve(url)).then(response => response.json());
+    }
+
+    resolve(url) {
+        return this.root + "/" + url;
     }
 }
 
@@ -36,6 +40,7 @@ export class PithStreamDetails {
 export class PithItem {
     readonly title: string;
     readonly playable: boolean;
+    readonly poster: string;
     constructor(readonly channel: PithChannel, readonly id: string, descriptor?: any) {
         if(descriptor) {
             Object.assign(this, descriptor);
@@ -44,6 +49,10 @@ export class PithItem {
 
     getStreamDetails(): Promise<PithStreamDetails> {
         return this.channel.get('stream/' + this.id);
+    }
+
+    get service(): PithService {
+        return this.channel.service;
     }
 }
 export class PithDirectory extends PithItem {
@@ -67,8 +76,7 @@ export class PithChannel extends RestModule {
     readonly id: string;
     readonly title: string;
     readonly channel: PithChannel;
-    readonly service: PithService;
-    constructor(service, descriptor) {
+    constructor(private service: PithService, descriptor) {
         super(`channel/${descriptor.id}`, service.restModule);
         Object.assign(this, descriptor);
     }
@@ -79,13 +87,20 @@ export class PithChannel extends RestModule {
 }
 
 export class PithService {
-    private serviceLocation: PithDiscoveryResult;
-    private restModule: RestModule;
-    constructor(serviceLocation: PithDiscoveryResult) {
-        this.restModule = new RestModule(`http://${serviceLocation.host}:${serviceLocation.port}/${serviceLocation.rest}/`);
+    readonly restModule: RestModule;
+    constructor(private serviceLocation: PithDiscoveryResult) {
+        this.restModule = new RestModule(this.resolve(serviceLocation.rest));
+    }
+
+    private resolve(url: string) {
+        return `http://${this.serviceLocation.host}:${this.serviceLocation.port}/${url}/`;
     }
 
     listChannels() : Promise<PithChannel[]> {
         return this.restModule.get("channels").then(result => result.map((ch => new PithChannel(this, ch))));
+    }
+
+    getImage(url: string, width: number, height: number) {
+        return this.resolve(`scale/${url}?size=${width}x${height}`);
     }
 }

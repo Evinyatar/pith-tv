@@ -1,12 +1,20 @@
 import React from "react";
 
 import {
-    FlatList,
-    Text
+    Image,
+    Text, TouchableOpacity
 } from "react-native";
 import {PithChannel, PithDirectory, PithItem} from "../services/PithService";
+import {FlatGrid} from "react-native-super-grid";
 
-export class Browser extends React.Component {
+const CELL_WIDTH = 130;
+const CELL_HEIGHT = CELL_WIDTH / 2 * 3;
+
+interface State {
+    contents: PithItem[]
+}
+
+export class Browser extends React.Component<{navigation: any}, State> {
     private directory: PithDirectory;
     private channel: PithChannel;
 
@@ -14,9 +22,7 @@ export class Browser extends React.Component {
         super(...rest);
     }
 
-    state: {
-        contents: PithItem[]
-    } = {
+    state: State = {
         contents: []
     };
 
@@ -40,12 +46,20 @@ export class Browser extends React.Component {
         this.setState({contents: await this.directory.listContents()});
     }
 
+    renderItem(item: PithItem) {
+        if(item.poster) {
+            const url = item.service.getImage(item.poster, CELL_WIDTH, CELL_HEIGHT);
+            return (<TouchableOpacity onPress={() => this.selectItem(item)}><Image source={{uri: url}} style={{width: CELL_WIDTH, height: CELL_HEIGHT}} /></TouchableOpacity>);
+        }
+        return (<Text onPress={() => this.selectItem(item)}>{item.title}</Text>);
+    }
+
     render() {
         return (
             <>
                 <Text>Contents</Text>
-                <FlatList data={this.state.contents}
-                          renderItem={({item}) => <Text onPress={() => this.selectItem(item)}>{item.title}</Text>}/>
+                <FlatGrid items={this.state.contents} itemDimension={CELL_WIDTH}
+                          renderItem={({item}) => this.renderItem(item)}/>
             </>);
     }
 }
