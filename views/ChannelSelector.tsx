@@ -1,17 +1,24 @@
-import React from "react";
-
 import {
     FlatList,
-    Text
+    Text, ViewProps
 } from "react-native";
-import {PithChannel, PithDirectory, PithItem, PithService, PithStreamDetails} from "../services/PithService";
-import VlcPlayer from 'react-native-vlc-player';
+import {PithChannel, PithService} from "../services/PithService";
+import {Component} from "react";
+import * as React from "react";
 
-export class ChannelSelector extends React.Component {
+interface Props extends ViewProps {
+    navigation
+}
+
+interface State {
+
+}
+
+export class ChannelSelector extends Component<Props, State> {
     private pithService: PithService;
 
-    constructor(...rest) {
-        super(...rest);
+    constructor(props) {
+        super(props);
         const serviceLocation = this.props.navigation.getParam("serviceLocation");
         this.pithService = new PithService(serviceLocation);
     }

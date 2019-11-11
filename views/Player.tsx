@@ -1,16 +1,22 @@
-import React from "react";
+import {Component} from "react";
+import * as React from "react";
 
 import {
     Dimensions,
     FlatList, StyleSheet,
     Text, View
 } from "react-native";
-import {PithChannel, PithDirectory, PithItem, PithService, PithStreamDetails} from "../services/PithService";
-import VlcPlayer from 'react-native-vlc-player';
 
-export class Player extends React.Component {
-    constructor(...rest) {
-        super(...rest);
+import {VlcPlayer} from "../src/VlcPlayer";
+
+interface Props {
+    navigation
+}
+interface State {}
+
+export class Player extends Component<Props, State> {
+    constructor(props) {
+        super(props);
     }
 
     render() {
@@ -19,7 +25,6 @@ export class Player extends React.Component {
                 width: Dimensions.get('window').width,
                 height: Dimensions.get('window').height
             }}
-            autoplay={true}
             paused={false}
             source={{
                 uri: this.props.navigation.getParam("stream").stream.url,

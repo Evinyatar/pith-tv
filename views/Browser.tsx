@@ -1,4 +1,5 @@
-import React from "react";
+import {Component} from "react";
+import * as React from "react"
 
 import {
     Image,
@@ -14,13 +15,9 @@ interface State {
     contents: PithItem[]
 }
 
-export class Browser extends React.Component<{navigation: any}, State> {
+export class Browser extends Component<{navigation: any}, State> {
     private directory: PithDirectory;
     private channel: PithChannel;
-
-    constructor(...rest) {
-        super(...rest);
-    }
 
     state: State = {
         contents: []
